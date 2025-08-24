@@ -57,40 +57,42 @@ jobs:
             sudo mkdir -p /opt/mean-app
             sudo chown $USER:$USER /opt/mean-app || true
             cd /opt/mean-app
-            cat > docker-compose.yml <<'COMPOSE'
-version: "3.9"
-services:
-  mongo:
-    image: mongo:6
-    container_name: mongo
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+            
+            # Create docker-compose.yml file
+            cat > docker-compose.yml << 'EOF'
+            version: "3.9"
+            services:
+              mongo:
+                image: mongo:6
+                container_name: mongo
+                restart: unless-stopped
+                ports:
+                  - "27017:27017"
+                volumes:
+                  - mongo_data:/data/db
 
-  backend:
-    image: ${{ secrets.DOCKERHUB_USERNAME }}/mean-backend:latest
-    container_name: backend
-    restart: unless-stopped
-    environment:
-      - MONGO_URI=mongodb://mongo:27017/meanapp
-      - PORT=3000
-    depends_on:
-      - mongo
+              backend:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/mean-backend:latest
+                container_name: backend
+                restart: unless-stopped
+                environment:
+                  - MONGO_URI=mongodb://mongo:27017/meanapp
+                  - PORT=3000
+                depends_on:
+                  - mongo
 
-  frontend:
-    image: ${{ secrets.DOCKERHUB_USERNAME }}/mean-frontend:latest
-    container_name: frontend
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
+              frontend:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/mean-frontend:latest
+                container_name: frontend
+                restart: unless-stopped
+                ports:
+                  - "80:80"
+                depends_on:
+                  - backend
 
-volumes:
-  mongo_data:
-COMPOSE
+            volumes:
+              mongo_data:
+            EOF
 
             docker compose pull
             docker compose up -d --remove-orphans
