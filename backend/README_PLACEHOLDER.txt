@@ -1,0 +1,1 @@
+Place your Express backend here (package.json, app/, index.js). Ensure backend reads MONGO_URI from env.
